@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <h2>Welcome to College Notice Board</h2>
+    <p>Stay updated with latest college announcements, events, and important information</p>
+</div>
+
+<div class="public-notices">
+    <h3>Recent Public Notices</h3>
+    {% if notices %}
+        {% for notice in notices %}
+        <div class="notice-card {{ notice.priority|lower }}-priority">
+            <h4>{{ notice.title }}</h4>
+            <p>{{ notice.content }}</p>
+            <div class="notice-meta">
+                <span>Type: {{ notice.type }}</span>
+                <span>Priority: {{ notice.priority }}</span>
+                <span>Published: {{ notice.timestamp.strftime('%d-%m-%Y %H:%M') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No public notices available at the moment.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

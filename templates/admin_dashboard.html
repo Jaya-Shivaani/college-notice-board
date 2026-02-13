@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Admin Dashboard</h2>
+    <p>Welcome, {{ admin.name }} | Department: {{ admin.department }}</p>
+</div>
+
+<div class="stats-container">
+    <div class="stat-card">
+        <h3>{{ total_notices }}</h3>
+        <p>Total Notices</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ active_notices }}</h3>
+        <p>Active Notices</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ emergency_notices }}</h3>
+        <p>Emergency</p>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('search_notices') }}" class="search-form">
+    <div class="form-row">
+        <input type="text" name="query" placeholder="Search notices..." value="{{ search_query or '' }}">
+        <select name="department">
+            <option value="ALL">All Departments</option>
+            {% for dept in departments %}
+            <option value="{{ dept }}">{{ dept }}</option>
+            {% endfor %}
+        </select>
+        <select name="type">
+            <option value="ALL">All Types</option>
+            {% for type in notice_types %}
+            <option value="{{ type }}">{{ type }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Search</button>
+    </div>
+</form>
+
+<div class="notices-section">
+    <h3>Recent Notices</h3>
+    
+    {% if notices %}
+        {% for notice in notices %}
+        <div class="notice-card {{ notice.priority|lower }}-priority admin-notice">
+            <div class="notice-header">
+                <h4>{{ notice.title }}</h4>
+                <div>
+                    <span class="notice-badge {{ notice.type|lower }}">{{ notice.type }}</span>
+                    {% if can_delete_notice(notice, admin.department) %}
+                    <a href="{{ url_for('delete_notice', notice_id=notice.id) }}" 
+                       class="btn btn-danger btn-small" 
+                       onclick="return confirm('Delete this notice?')">Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+            <p class="notice-content">{{ notice.content }}</p>
+            <div class="notice-meta">
+                <span><strong>Department:</strong> {{ notice.department }}</span>
+                <span><strong>Priority:</strong> {{ notice.priority }}</span>
+                <span><strong>Author:</strong> {{ notice.author_name }}</span>
+                <span><strong>Published:</strong> {{ notice.timestamp.strftime('%d-%m-%Y %H:%M') }}</span>
+                <span><strong>Expires:</strong> {{ notice.expiry.strftime('%d-%m-%Y %H:%M') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="no-notices">No notices found.</p>
+    {% endif %}
+</div>
+{% endblock %}

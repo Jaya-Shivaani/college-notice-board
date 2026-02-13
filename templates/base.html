@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}College Notice Board{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <h1>National Engineering College</h1>
+        <p>Digital Notice Board System</p>
+        {% if session.user %}
+        <div class="user-info">
+          Welcome, <strong>{{ session.name }}</strong> ({{ session.role|title
+          }})
+        </div>
+        {% endif %}
+      </header>
+
+      <nav class="navbar">
+        {% if session.user %} {% if session.role == 'admin' %}
+        <a href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('create_notice') }}">Create Notice</a>
+        <a href="{{ url_for('admin_statistics') }}">Statistics</a>
+        {% else %}
+        <a href="{{ url_for('student_dashboard') }}">Dashboard</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
+      </nav>
+
+      <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if
+        messages %} {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %} {% endif %} {% endwith %} {% block content %}{% endblock %}
+      </main>
+
+      <footer class="footer">
+        <p>&copy; 2024 National Engineering College, K.R. Nagar, Kovilpatti</p>
+      </footer>
+    </div>
+  </body>
+</html>

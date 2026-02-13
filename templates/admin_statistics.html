@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistics Dashboard - College Notice Board</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="#">College Notice Board</a>
+        <div class="navbar-nav ms-auto">
+          <a class="nav-link" href="{{ url_for('admin_dashboard') }}"
+            >Dashboard</a
+          >
+          <a class="nav-link active" href="{{ url_for('admin_statistics') }}"
+            >Statistics</a
+          >
+          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+      <div class="container">
+        <h1>Statistics Dashboard</h1>
+        <p class="lead">
+          Welcome, {{ admin.name }} | Department: {{ admin.department }}
+        </p>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Statistics Counters -->
+      <div class="row">
+        <div class="col-md-4">
+          <div class="stat-card total">
+            <h3 class="stat-number">{{ total_notices }}</h3>
+            <p class="stat-label">Total Notices</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card active">
+            <h3 class="stat-number">{{ active_notices }}</h3>
+            <p class="stat-label">Active Notices</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card emergency">
+            <h3 class="stat-number">{{ emergency_notices }}</h3>
+            <p class="stat-label">Emergency Notices</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="row">
+        <!-- Pie Chart - Notice Distribution by Type -->
+        <div class="col-md-6">
+          <div class="chart-container">
+            <h4>Notice Distribution by Type</h4>
+            <canvas
+              id="typePieChart"
+              width="400"
+              height="300"
+              data-notice-types="{{ notice_types }}"
+              data-type-distribution="{{ type_data }}"
+            ></canvas>
+          </div>
+        </div>
+
+        <!-- Bar Graph - Department-wise Notices -->
+        <div class="col-md-6">
+          <div class="chart-container">
+            <h4>Department-wise Notices</h4>
+            <canvas
+              id="deptBarChart"
+              width="400"
+              height="300"
+              data-departments="{{ departments }}"
+              data-dept-distribution="{{ dept_data }}"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Back to Dashboard -->
+      <div class="row mt-4">
+        <div class="col-12 text-center">
+          <a
+            href="{{ url_for('admin_dashboard') }}"
+            class="btn btn-primary btn-lg"
+          >
+            ← Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Function to initialize charts after DOM is loaded
+      function initCharts() {
+        console.log("initCharts called");
+
+        // Get data from canvas data attributes
+        const typeCanvas = document.getElementById("typePieChart");
+        const deptCanvas = document.getElementById("deptBarChart");
+
+        console.log("Canvases found:", !!typeCanvas, !!deptCanvas);
+
+        if (!typeCanvas || !deptCanvas) {
+          console.error("Chart canvases not found");
+          return;
+        }
+
+        try {
+          const notice_types_attr = typeCanvas.getAttribute("data-notice-types");
+          const type_data_attr = typeCanvas.getAttribute("data-type-distribution");
+          const departments_attr = deptCanvas.getAttribute("data-departments");
+          const dept_data_attr = deptCanvas.getAttribute("data-dept-distribution");
+
+          console.log("Raw attributes:", {
+            notice_types_attr: notice_types_attr ? notice_types_attr.substring(0, 100) + "..." : null,
+            type_data_attr: type_data_attr ? type_data_attr.substring(0, 100) + "..." : null,
+            departments_attr: departments_attr ? departments_attr.substring(0, 100) + "..." : null,
+            dept_data_attr: dept_data_attr ? dept_data_attr.substring(0, 100) + "..." : null
+          });
+
+          const notice_types = notice_types_attr ? JSON.parse(notice_types_attr) : [];
+          const type_distribution_data = type_data_attr ? JSON.parse(type_data_attr) : [];
+          const departments = departments_attr ? JSON.parse(departments_attr) : [];
+          const dept_distribution_data = dept_data_attr ? JSON.parse(dept_data_attr) : [];
+
+          console.log("Parsed data:", {
+            notice_types,
+            type_distribution_data,
+            departments,
+            dept_distribution_data
+          });
+
+          console.log("Parsed data:", {
+            notice_types,
+            type_distribution_data,
+            departments,
+            dept_distribution_data
+          });
+
+          // Pie Chart - Notice Distribution by Type
+          const typeCtx = typeCanvas.getContext("2d");
+          const typePieChart = new Chart(typeCtx, {
+            type: "pie",
+            data: {
+              labels: notice_types,
+              datasets: [
+                {
+                  data: type_distribution_data,
+                  backgroundColor: [
+                    "#FF6384",
+                    "#36A2EB",
+                    "#FFCE56",
+                    "#4BC0C0",
+                    "#9966FF",
+                    "#FF9F40",
+                    "#FF6384",
+                    "#C9CBCF",
+                  ],
+                  borderWidth: 2,
+                  borderColor: "#fff",
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "right",
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function (context) {
+                      const label = context.label || "";
+                      const value = context.raw || 0;
+                      const total = context.dataset.data.reduce(
+                        (a, b) => a + b,
+                        0
+                      );
+                      const percentage = Math.round((value / total) * 100);
+                      return `${label}: ${value} (${percentage}%)`;
+                    },
+                  },
+                },
+              },
+            },
+          });
+          console.log("Pie chart created");
+
+          // Bar Chart - Department-wise Notices
+          const deptCtx = deptCanvas.getContext("2d");
+          const deptBarChart = new Chart(deptCtx, {
+            type: "bar",
+            data: {
+              labels: departments,
+              datasets: [
+                {
+                  label: "Number of Notices",
+                  data: dept_distribution_data,
+                  backgroundColor: "rgba(255, 99, 132, 0.8)",
+                  borderColor: "rgba(255, 99, 132, 1)",
+                  borderWidth: 2,
+                  barThickness: 50,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true,
+                },
+              },
+              plugins: {
+                legend: {
+                  display: false,
+                },
+              },
+            },
+          });
+          console.log("Bar chart created");
+        } catch (error) {
+          console.error("Error creating charts:", error);
+        }
+      }
+
+      // Initialize charts when DOM is ready
+      document.addEventListener("DOMContentLoaded", initCharts);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

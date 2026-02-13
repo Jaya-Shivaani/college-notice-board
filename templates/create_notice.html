@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Create New Notice</h2>
+    
+    <form method="POST" class="notice-form">
+        <div class="form-group">
+            <label for="title">Notice Title:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Notice Content:</label>
+            <textarea id="content" name="content" rows="5" required></textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="department">Department:</label>
+                <select id="department" name="department" required {% if departments|length == 1 %}disabled{% endif %}>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if departments|length == 1 %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+                {% if departments|length == 1 %}
+                <input type="hidden" name="department" value="{{ departments[0] }}">
+                <small class="form-hint">(Your department is automatically selected)</small>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="type">Notice Type:</label>
+                <select id="type" name="type" required>
+                    {% for type in notice_types %}
+                    <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority" required>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="expiry_days">Expires After (days):</label>
+                <select id="expiry_days" name="expiry_days" required>
+                    <option value="1">1 Day</option>
+                    <option value="3">3 Days</option>
+                    <option value="7" selected>1 Week</option>
+                    <option value="30">1 Month</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Publish Notice</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

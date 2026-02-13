@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Login to Notice Board</h2>
+    
+    <form method="POST" class="login-form">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+
+    <div class="demo-accounts">
+        <h4>Demo Accounts:</h4>
+        <p><strong>Admin:</strong> admin / admin123</p>
+        <p><strong>HOD CSE:</strong> hod_cse / hod123</p>
+        <p><strong>Student:</strong> student1 / student123</p>
+    </div>
+</div>
+{% endblock %}

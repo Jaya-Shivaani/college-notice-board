@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2>Student Dashboard</h2>
+    <p>Department: {{ student.department }} | Year: {{ student.year }}</p>
+    
+    {% if new_notices_count > 0 %}
+    <div class="new-notices-alert">
+        🎉 You have {{ new_notices_count }} new notice(s)!
+    </div>
+    {% endif %}
+</div>
+
+<form method="POST" action="{{ url_for('search_notices') }}" class="search-form">
+    <div class="form-row">
+        <input type="text" name="query" placeholder="Search notices..." >
+        <select name="department">
+            <option value="ALL">All Departments</option>
+            <option value="CSE">CSE</option>
+            <option value="ECE">ECE</option>
+            <option value="EEE">EEE</option>
+            <option value="MECH">MECH</option>
+            <option value="CIVIL">CIVIL</option>
+        </select>
+        <select name="type">
+            <option value="ALL">All Types</option>
+            <option value="General">General</option>
+            <option value="Academic">Academic</option>
+            <option value="Event">Event</option>
+            <option value="Emergency">Emergency</option>
+            <option value="Placement">Placement</option>
+            <option value="Exam">Exam</option>
+        </select>
+        <button type="submit" class="btn btn-secondary">Search</button>
+    </div>
+</form>
+
+<div class="notices-section">
+    <h3>Your Notices</h3>
+    
+    {% if notices %}
+        {% for notice in notices %}
+        <div class="notice-card {{ notice.priority|lower }}-priority {{ notice.type|lower }}-type">
+            <div class="notice-header">
+                <h4>{{ notice.title }}</h4>
+                <span class="notice-badge {{ notice.type|lower }}">{{ notice.type }}</span>
+            </div>
+            <p class="notice-content">{{ notice.content }}</p>
+            <div class="notice-meta">
+                <span><strong>Department:</strong> {{ notice.department }}</span>
+                <span><strong>Priority:</strong> {{ notice.priority }}</span>
+                <span><strong>Published:</strong> {{ notice.timestamp.strftime('%d-%m-%Y %H:%M') }}</span>
+                <span><strong>Expires:</strong> {{ notice.expiry.strftime('%d-%m-%Y %H:%M') }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="no-notices">No notices found for your department.</p>
+    {% endif %}
+</div>
+
+<meta http-equiv="refresh" content="30">
+<div class="refresh-info">
+    <small>Page auto-refreshes every 30 seconds for new notices</small>
+</div>
+{% endblock %}
