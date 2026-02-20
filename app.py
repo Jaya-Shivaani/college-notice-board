@@ -1,6 +1,8 @@
 
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_talisman import Talisman
+from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import time
@@ -10,6 +12,14 @@ import os
 import json
 
 app = Flask(__name__)
+Talisman(app)
+csrf = CSRFProtect(app)
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_SAMESITE='Lax'
+)
 app.secret_key = 'college_notice_board_secret_2025'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=2)
 
